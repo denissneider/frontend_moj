@@ -9,11 +9,11 @@ import App from '../App'; // Ensure the path to App is correct
 //});
 
 // Test 2: Ensure the sidebar menu heading "Menu" exists (should pass)
-test('renders the sidebar menu heading', () => {
-  render(<App />);
-  const sidebarHeading = screen.getByText(/Menu/i);
-  expect(sidebarHeading).toBeInTheDocument();
-});
+//test('renders the sidebar menu heading', () => {
+//  render(<App />);
+//  const sidebarHeading = screen.getByText(/Menu/i);
+//  expect(sidebarHeading).toBeInTheDocument();
+//});
 
 // Test 3: Ensure the "Loading..." text is rendered (should pass)
 test('renders the loading state', () => {

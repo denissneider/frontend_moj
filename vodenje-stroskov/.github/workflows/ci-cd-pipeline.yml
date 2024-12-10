@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Frontend Tests
 
 on:
   push:
@@ -23,12 +23,6 @@ jobs:
       run: npm install
       working-directory: vodenje-stroskov
 
-    - name: Run tests and generate coverage report
-      run: npm test -- --coverage --watchAll=false
+    - name: Run tests
+      run: npm test
       working-directory: vodenje-stroskov
-
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-report
-        path: vodenje-stroskov/coverage

@@ -1,6 +1,6 @@
 // frontend_moj/src/App.js
 
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 import SideBar from './components/Sidebar.jsx';
 import TableComponent from './components/CostTracking.jsx';

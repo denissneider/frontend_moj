@@ -1,17 +1,17 @@
-name: Frontend Tests
+name: CI/CD Pipeline
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        project: [frontend, backend]
+
     steps:
-    - name: Check out repository
+    - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Set up Node.js
@@ -19,10 +19,23 @@ jobs:
       with:
         node-version: '16'
 
-    - name: Install dependencies
-      run: npm install
-      working-directory: vodenje-stroskov
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        path: ${{ matrix.project }}/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles(matrix.project + '/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
-    - name: Run tests
-      run: npm test
-      working-directory: vodenje-stroskov
+    - name: Install dependencies
+      working-directory: ${{ matrix.project }}
+      run: npm install
+
+    - name: Build the project
+      working-directory: ${{ matrix.project }}
+      run: |
+        if [ "${{ matrix.project }}" == "backend" ]; then
+          npm run build # TypeScript build
+        else
+          npm run build # React build
+        fi

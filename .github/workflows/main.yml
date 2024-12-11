@@ -1,4 +1,4 @@
-name: Frontend Tests
+name: Frontend CI/CD
 
 on:
   push:
@@ -7,22 +7,75 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  build-frontend:
     runs-on: ubuntu-latest
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
       with:
         node-version: '16'
 
-    - name: Install dependencies
-      run: npm install
-      working-directory: vodenje-stroskov
+    - name: Cache node_modules
+      uses: actions/cache@v3
+      with:
+        path: vodenje-stroskov/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('vodenje-stroskov/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
-    - name: Run tests
-      run: npm test
-      working-directory: vodenje-stroskov
+    - name: Install dependencies
+      run: |
+        cd vodenje-stroskov
+        npm ci
+
+    - name: Build application
+      run: |
+        cd vodenje-stroskov
+        npm run build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: vodenje-stroskov/build/
+
+  test-frontend:
+    needs: build-frontend
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Cache node_modules
+      uses: actions/cache@v3
+      with:
+        path: vodenje-stroskov/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('vodenje-stroskov/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      run: |
+        cd vodenje-stroskov
+        npm ci
+
+    - name: Run tests with coverage
+      run: |
+        cd vodenje-stroskov
+        npm run test:ci
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-coverage
+        path: vodenje-stroskov/coverage/
